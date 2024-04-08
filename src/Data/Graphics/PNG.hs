@@ -22,7 +22,7 @@ data ImageHeader = ImageHeader
 data ColorType
   = Grayscale
   | RGBTriple
-  | PalateIndex [Word8]
+  | PaletteIndex [Word8]
   | GrayscaleAlpha
   | RGBTripleAlpha
   deriving (Show)
@@ -30,7 +30,7 @@ data ColorType
 colorTypeToWord :: ColorType -> Word8
 colorTypeToWord Grayscale = 0
 colorTypeToWord RGBTriple = 2
-colorTypeToWord (PalateIndex _) = 3
+colorTypeToWord (PaletteIndex _) = 3
 colorTypeToWord GrayscaleAlpha = 4
 colorTypeToWord RGBTripleAlpha = 6
 
