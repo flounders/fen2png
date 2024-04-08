@@ -22,10 +22,12 @@ data ImageHeader = ImageHeader
 data ColorType
   = Grayscale
   | RGBTriple
-  | PaletteIndex [Word8]
+  | PaletteIndex [PaletteEntry]
   | GrayscaleAlpha
   | RGBTripleAlpha
   deriving (Show)
+
+data PaletteEntry = PaletteEntry {red :: Word8, green :: Word8, blue :: Word8} deriving (Show)
 
 colorTypeToWord :: ColorType -> Word8
 colorTypeToWord Grayscale = 0
@@ -84,7 +86,11 @@ makeIHDR iData
 
    PLTE chunks are invalid if their length is not divisible by 3.
 -}
-makePLTE = makeChunk (builderToStrict $ BSB.string7 "PLTE") undefined
+makePLTE :: ColorType -> Maybe BS.ByteString
+makePLTE (PaletteIndex xs) =
+  let is = foldMap (\(PaletteEntry r g b) -> builderToStrict (BSB.word8 r <> BSB.word8 g <> BSB.word8 b)) xs
+   in Just $ makeChunk (builderToStrict $ BSB.string7 "PLTE") is
+makePLTE _ = Nothing
 
 -- Data should be verified and generated correctly outside of this function
 makeIDAT :: BS.ByteString -> BS.ByteString
@@ -100,6 +106,7 @@ builderToStrict = BSL.toStrict . BSB.toLazyByteString
 rgbTripleToBS :: (Word8, Word8, Word8) -> BS.ByteString
 rgbTripleToBS (r, g, b) = BS.pack [r, g, b]
 
+makeImage :: ImageHeader -> BS.ByteString -> Maybe BS.ByteString
 makeImage ihdr pixels = do
   hdr <- makeIHDR ihdr
   let dat = makeIDAT . BSL.toStrict . compress $ BSL.fromStrict pixels
