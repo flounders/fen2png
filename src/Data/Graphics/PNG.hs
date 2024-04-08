@@ -87,9 +87,11 @@ makeIHDR iData
    PLTE chunks are invalid if their length is not divisible by 3.
 -}
 makePLTE :: ColorType -> Maybe BS.ByteString
-makePLTE (PaletteIndex xs) =
-  let is = foldMap (\(PaletteEntry r g b) -> builderToStrict (BSB.word8 r <> BSB.word8 g <> BSB.word8 b)) xs
-   in Just $ makeChunk (builderToStrict $ BSB.string7 "PLTE") is
+makePLTE (PaletteIndex xs)
+  | length xs <= 256 =
+      let is = foldMap (\(PaletteEntry r g b) -> builderToStrict (BSB.word8 r <> BSB.word8 g <> BSB.word8 b)) xs
+       in Just $ makeChunk (builderToStrict $ BSB.string7 "PLTE") is
+  | otherwise = Nothing
 makePLTE _ = Nothing
 
 -- Data should be verified and generated correctly outside of this function
