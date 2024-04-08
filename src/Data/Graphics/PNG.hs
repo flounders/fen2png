@@ -1,4 +1,4 @@
-module Data.Graphics.PNG (someFunc) where
+module Data.Graphics.PNG (ColorType (..), ImageHeader (..), PaletteEntry (..), makeImage) where
 
 import Codec.Compression.Zlib (compress)
 import Data.Bits
@@ -117,6 +117,3 @@ makeImage ihdr pixels = do
     (PaletteIndex _) -> makePLTE color
     _ -> pure BS.empty
   pure $ pngSignature <> hdr <> palette <> dat <> makeIEND
-
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
