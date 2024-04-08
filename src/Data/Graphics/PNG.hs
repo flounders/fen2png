@@ -112,7 +112,11 @@ makeImage :: ImageHeader -> BS.ByteString -> Maybe BS.ByteString
 makeImage ihdr pixels = do
   hdr <- makeIHDR ihdr
   let dat = makeIDAT . BSL.toStrict . compress $ BSL.fromStrict pixels
-  pure $ pngSignature <> hdr <> dat <> makeIEND
+      color = colorType ihdr
+  palette <- case color of
+    (PaletteIndex _) -> makePLTE color
+    _ -> pure BS.empty
+  pure $ pngSignature <> hdr <> palette <> dat <> makeIEND
 
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
