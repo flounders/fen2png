@@ -1,4 +1,4 @@
-module MyLib (someFunc) where
+module Data.Graphics.PNG (someFunc) where
 
 import Codec.Compression.Zlib (compress)
 import Data.Bits
@@ -12,7 +12,7 @@ data ImageHeader = ImageHeader
   { width :: Word32
   , height :: Word32
   , bitDepth :: Word8
-  , colorType :: Word8
+  , colorType :: ColorType
   , compressionMethod :: Word8
   , filterMethod :: Word8
   , interlaceMethod :: Word8
@@ -22,7 +22,7 @@ data ImageHeader = ImageHeader
 data ColorType
   = Grayscale
   | RGBTriple
-  | PalateIndex
+  | PalateIndex [Word8]
   | GrayscaleAlpha
   | RGBTripleAlpha
   deriving (Show)
@@ -30,7 +30,7 @@ data ColorType
 colorTypeToWord :: ColorType -> Word8
 colorTypeToWord Grayscale = 0
 colorTypeToWord RGBTriple = 2
-colorTypeToWord PalateIndex = 3
+colorTypeToWord (PalateIndex _) = 3
 colorTypeToWord GrayscaleAlpha = 4
 colorTypeToWord RGBTripleAlpha = 6
 
@@ -73,7 +73,7 @@ makeIHDR iData
             BSB.word32BE (width iData)
               <> BSB.word32BE (height iData)
               <> BSB.word8 (bitDepth iData)
-              <> BSB.word8 (colorType iData)
+              <> BSB.word8 (colorTypeToWord $ colorType iData)
               <> BSB.word8 (compressionMethod iData)
               <> BSB.word8 (filterMethod iData)
               <> BSB.word8 (interlaceMethod iData)
@@ -107,25 +107,3 @@ makeImage ihdr pixels = do
 
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
-
-{-
- - 0000 - 0x00
- - 0001 - 0x01
- - 0010 - 0x02
- - 0011 - 0x03
- - 0100 - 0x04
- - 0101 - 0x05
- - 0110 - 0x06
- - 0111 - 0x07
- - 1000 - 0x08
- - 1001 - 0x09
- - 1010 - 0x0a
- - 1011 - 0x0b
- - 1100 - 0x0c
- - 1101 - 0x0d
- - 1110 - 0x0e
- - 1111 - 0x0f
- -
- - 0xd7 11010111
- - 0xda 11011010
--}
