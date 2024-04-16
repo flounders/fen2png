@@ -60,7 +60,9 @@ library
   import:           warnings
 
   -- Modules exported by the library.
-  exposed-modules:  Data.Graphics.PNG
+  exposed-modules:
+    Data.Graphics.Canvas
+    Data.Graphics.PNG
 
   -- Modules included in this library but not exported.
   -- other-modules:
@@ -73,6 +75,7 @@ library
     , base        ^>=4.17.2.1
     , bytestring
     , containers
+    , vector
     , zlib
 
   -- Directories containing source files.
