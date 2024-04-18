@@ -19,7 +19,7 @@ newCanvas w h = do
 
 putPixel :: Int -> Int -> Pixel -> Canvas -> IO ()
 putPixel x y p c
-  | x > width c || y > height c = fail "Canvas: Pixel location is out of bounds of the canvas."
+  | x >= width c || y >= height c = fail "Canvas: Pixel location is out of bounds of the canvas."
   | otherwise = MV.modifyM (canvas c) (\l -> MV.modify (scanline l) (const p) x >> return l) y
 
 canvasToPNGBytes :: Canvas -> IO ByteString
