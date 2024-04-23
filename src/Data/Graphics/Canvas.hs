@@ -2,6 +2,7 @@ module Data.Graphics.Canvas where
 
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
+import Data.Graphics.PNG (ColorType (RGBTriple), ImageHeader (ImageHeader), makeImage)
 import Data.Vector.Mutable (IOVector)
 import qualified Data.Vector.Mutable as MV
 import Data.Word (Word8)
@@ -26,3 +27,10 @@ canvasToPNGBytes :: Canvas -> IO ByteString
 canvasToPNGBytes = do
   let lineToBS = MV.foldl' (\acc (Pixel r g b) -> BS.append acc $ BS.pack [r, g, b]) (BS.singleton 0)
   MV.foldM' (\acc x -> BS.append acc <$> lineToBS (scanline x)) BS.empty . canvas
+
+canvasToPNG :: Canvas -> IO ByteString
+canvasToPNG c = do
+  let imageHeader = ImageHeader (convertNum $ width c) (convertNum $ height c) 8 RGBTriple 0 0 0
+      convertNum = fromInteger . toInteger
+  pixels <- canvasToPNGBytes c
+  maybe (fail "canvasToPNG: makeImage failed") return $ makeImage imageHeader pixels
