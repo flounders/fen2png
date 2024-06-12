@@ -7,11 +7,11 @@ import Data.Vector.Mutable (IOVector)
 import qualified Data.Vector.Mutable as MV
 import Data.Word (Word8)
 
-data Canvas = Canvas {canvas :: IOVector Scanline, height :: Int, width :: Int}
+data Canvas = Canvas {canvas :: !(IOVector Scanline), height :: !Int, width :: !Int}
 
 newtype Scanline = Scanline {scanline :: IOVector Pixel}
 
-data Pixel = Pixel {red :: Word8, green :: Word8, blue :: Word8}
+data Pixel = Pixel {red :: !Word8, green :: !Word8, blue :: !Word8}
 
 newCanvas :: Int -> Int -> IO Canvas
 newCanvas w h = do

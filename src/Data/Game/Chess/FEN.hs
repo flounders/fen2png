@@ -5,7 +5,9 @@ import qualified Control.Monad
 import Data.Char (isDigit)
 import Data.List (uncons)
 import qualified Data.Map as M
-import Text.ParserCombinators.ReadP (ReadP, char, munch1, readP_to_S, sepBy1, skipSpaces)
+import qualified Data.Maybe
+import Text.ParserCombinators.ReadP (ReadP, char, munch1, pfail, readP_to_S, sepBy1, skipSpaces)
+import Text.Read (readMaybe)
 
 data Piece
   = Pawn
@@ -22,7 +24,7 @@ data Player
   | Black
   deriving (Show)
 
-data SquareContent = SquareContent {piece :: Piece, player :: Player} deriving (Show)
+data SquareContent = SquareContent {piece :: !Piece, player :: !Player} deriving (Show)
 
 newtype Board = Board {squares :: M.Map Square SquareContent} deriving (Show)
 
@@ -32,12 +34,12 @@ data CastlingSide
   deriving (Show)
 
 data Game = Game
-  { board :: Board
-  , toMove :: Player
-  , castling :: [(Player, CastlingSide)]
-  , enPassant :: Maybe Square
-  , halfMoves :: Int
-  , fullMoves :: Int
+  { board :: !Board
+  , toMove :: !Player
+  , castling :: ![(Player, CastlingSide)]
+  , enPassant :: !(Maybe Square)
+  , halfMoves :: !Int
+  , fullMoves :: !Int
   }
   deriving (Show)
 
@@ -90,7 +92,7 @@ parseBoard = do
         foldr
           ( \x (acc, m') ->
               if isDigit x
-                then (read [x] + acc, m')
+                then (Data.Maybe.fromMaybe (error "parseBoard: For some reason readMaybe failed.") (readMaybe [x]) + acc, m')
                 else (acc + 1, maybe m' (\y -> M.insert y (symbolToSquareContent x) m') (toSquare [numberToFile acc, head $ show r]))
           )
           (1, m)
@@ -129,7 +131,7 @@ parseEnPassant = do
 parseInt :: ReadP Int
 parseInt = do
   ds <- munch1 isDigit
-  return $ read ds
+  maybe pfail return $ readMaybe ds
 
 parseHalfMoves :: ReadP Int
 parseHalfMoves = do

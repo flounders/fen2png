@@ -9,25 +9,25 @@ import qualified Data.Map.Strict as M
 import Data.Word
 
 data ImageHeader = ImageHeader
-  { width :: Word32
-  , height :: Word32
-  , bitDepth :: Word8
-  , colorType :: ColorType
-  , compressionMethod :: Word8
-  , filterMethod :: Word8
-  , interlaceMethod :: Word8
+  { width :: !Word32
+  , height :: !Word32
+  , bitDepth :: !Word8
+  , colorType :: !ColorType
+  , compressionMethod :: !Word8
+  , filterMethod :: !Word8
+  , interlaceMethod :: !Word8
   }
   deriving (Show)
 
 data ColorType
   = Grayscale
   | RGBTriple
-  | PaletteIndex [PaletteEntry]
+  | PaletteIndex ![PaletteEntry]
   | GrayscaleAlpha
   | RGBTripleAlpha
   deriving (Show)
 
-data PaletteEntry = PaletteEntry {red :: Word8, green :: Word8, blue :: Word8} deriving (Show)
+data PaletteEntry = PaletteEntry {red :: !Word8, green :: !Word8, blue :: !Word8} deriving (Show)
 
 colorTypeToWord :: ColorType -> Word8
 colorTypeToWord Grayscale = 0
@@ -105,9 +105,6 @@ makeIEND = makeChunk (builderToStrict $ BSB.string7 "IEND") BS.empty
 builderToStrict :: BSB.Builder -> BS.ByteString
 builderToStrict = BSL.toStrict . BSB.toLazyByteString
 
-rgbTripleToBS :: (Word8, Word8, Word8) -> BS.ByteString
-rgbTripleToBS (r, g, b) = BS.pack [r, g, b]
-
 makeImage :: ImageHeader -> BS.ByteString -> Maybe BS.ByteString
 makeImage ihdr pixels = do
   hdr <- makeIHDR ihdr
@@ -115,5 +112,5 @@ makeImage ihdr pixels = do
       color = colorType ihdr
   palette <- case color of
     (PaletteIndex _) -> makePLTE color
-    _ -> pure BS.empty
+    _otherColorTypes -> pure BS.empty
   pure $ pngSignature <> hdr <> palette <> dat <> makeIEND
