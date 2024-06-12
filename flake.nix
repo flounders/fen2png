@@ -17,6 +17,7 @@
             pkgs.cabal-install
             pkgs.gcc
             pkgs.ghc
+            pkgs.haskell-language-server
             pkgs.zlib
             ];
           };
