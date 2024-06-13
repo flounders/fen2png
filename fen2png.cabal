@@ -64,6 +64,7 @@ library
     Data.Game.Chess.FEN
     Data.Game.Chess.Render
     Data.Graphics.Canvas
+    Data.Graphics.Canvas.Helper
     Data.Graphics.PNG
 
   -- Modules included in this library but not exported.
